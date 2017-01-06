@@ -9,21 +9,22 @@
  */
 
 namespace ArPHP\Http;
+use ArPHP\Filesystem\Upload\Upload;
 use ArPHP\Routing\Route;
 use ArPHP\Routing\Router;
+use ArPHP\Sessions\SessionManager;
 use ArPHP\Support\Arr;
-use ArPHP\Support\Traits\Macro;
+use ArPHP\Support\Macro;
+use ArPHP\Support\Repository;
+
 
 /**
  * Class Request
  * @package ArPHP\Http
  */
-class Request
+class Request extends Macro
 {
-    /**
-     * @var Macro
-     */
-    use Macro;
+
     /**
      * @var UrlGenerator
      */
@@ -35,6 +36,20 @@ class Request
     public function __construct()
     {
         $this->url = app(UrlGenerator::class);
+    }
+
+    /**
+     * @param $method
+     * @param $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        if(method_exists($this->url,$method)){
+            return call_user_func_array([$this->url,$method],$parameters);
+        }
+
+        return parent::__call($method,$parameters);
     }
 
     /**
@@ -104,7 +119,42 @@ class Request
         }
         return $post;
     }
-
+    /**
+     * upload files
+     * @param $name
+     * @return Upload|Repository
+     */
+    public function file($name){
+        $items = array();
+        $one = true;
+        if (Arr::has($_FILES, $name)) {
+            $files = $_FILES[$name];
+            if (is_array($files['name'])) {
+                $counter = count($files['name']);
+                for ($i = 0; $i < $counter; $i++) {
+                    if (!isset($files['name'][$i]) || empty($files['name'][$i])) {
+                        continue;
+                    }
+                    $file = array(
+                        'name' => (string)$files['name'][$i],
+                        'type' => (string)$files['type'][$i],
+                        'tmp_name' => (string)$files['tmp_name'][$i],
+                        'error' => (string)$files['error'][$i],
+                        'size' => (string)$files['size'][$i],
+                    );
+                    $items[] = new Upload($file);
+                }
+                $one = false;
+            } else {
+                $items[] = new Upload($files);
+            }
+        }
+        $Collection = new Repository($items);
+        if ($one) {
+            $Collection = $Collection->first();
+        }
+        return $Collection;
+    }
     /**
      * get server array
      * @return Access|mixed
@@ -172,6 +222,14 @@ class Request
     }
 
     /**
+     * @param $url
+     * @return int
+     */
+    public function is($url){
+        $url = str_replace('*','(.*)',$url);
+        return preg_match('#^'.ltrim($url,'/').'$#u',ltrim(str_replace(base_url(),null,$this->url->fullUrl()),'/'));
+    }
+    /**
      * @return mixed
      */
     public function all()
@@ -180,5 +238,72 @@ class Request
         $args = [$all];
         $args = array_merge($args,func_get_args());
         return call_user_func_array([Arr::class,'get'],$args);
+    }
+
+    /**
+     * get old post data
+     * @param bool|false $key
+     * @return mixed
+     */
+    public function old($key = false)
+    {
+        $old = \Session::get(_OLD_INPUT_DATA, array());
+        return Arr::get($old, $key);
+    }
+
+    /**
+     * get form token
+     * @return bool
+     */
+    public function token(){
+        $token = SessionManager::TOKEN;
+        return $this->all($token);
+    }
+
+
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function isRouteName($name)
+    {
+        return ($this->route()->getName() === $name);
+    }
+
+    /**
+     * @param $url
+     * @return bool
+     */
+    public function isRouteUrl($url)
+    {
+        return ($this->route()->getUri() === $url);
+    }
+
+    /**
+     * @param $action
+     * @return bool
+     */
+    public function isRouteAction($action)
+    {
+        return ($this->route()->getAction() === $action);
+    }
+
+    /**
+     * @param $controller
+     * @return bool
+     */
+    public function isRouteController($controller)
+    {
+        return ($this->route()->getController() === $controller);
+    }
+
+    /**
+     * @param $method
+     * @return bool
+     */
+    public function isRouteMethod($method)
+    {
+        return ($this->route()->getMethod() === $method);
     }
 }

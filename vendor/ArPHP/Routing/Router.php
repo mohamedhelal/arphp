@@ -40,14 +40,14 @@ class Router
      * @var array
      */
     protected $patterns = [
-        ':ID' => '[0-9]+',
-        ':TITLE' => '[\w\.]+',
-        ':STR' => '[\w]+',
-        ':INT' => '[0-9]+',
-        ':ANY' => '.+',
-        ':DAY' => '[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}',
-        ':MONTH' => '[0-9]{4}\/[0-9]{1,2}',
-        ':SLUG' => '[^\/]+'
+        'ID' => '[0-9]+',
+        'TITLE' => '[\w\.]+',
+        'STR' => '[\w]+',
+        'INT' => '[0-9]+',
+        'ANY' => '.+',
+        'DAY' => '[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}',
+        'MONTH' => '[0-9]{4}\/[0-9]{1,2}',
+        'SLUG' => '[^\/]+'
     ];
     /**
      * route groups
@@ -217,7 +217,7 @@ class Router
                 $this->pattern($key, $value);
             }
         } else {
-            $this->patterns[trim($name, ' ?')] = trim($pattern, ')(*/-+ ');
+            $this->patterns[trim($name, ' ?')] = trim($pattern, ')( ');
         }
         return $this;
     }
@@ -379,7 +379,6 @@ class Router
         $routes = $this->_routes;
         foreach ($routes as $route) {
             if ($route->checkMethod($method) && $route->validate()) {
-                $routes = null;
                 return $route;
             }
         }

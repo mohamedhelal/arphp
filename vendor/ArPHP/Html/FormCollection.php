@@ -13,18 +13,19 @@ namespace ArPHP\Html;
 
 
 
-use ArPHP\Support\Facade\Facade;
 
-class FormCollection extends Facade
+use ArPHP\Support\Statics\Statics;
+
+class FormCollection extends Statics
 {
+
+
 
     /**
      * get object name
      * @return mixed
      */
-
-
-    protected static function getInstanceName()
+    protected static function getStaticName()
     {
         return 'form';
     }

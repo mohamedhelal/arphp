@@ -34,6 +34,7 @@ class UrlGenerator
         '%21' => '!',
         '%2A' => '*',
         '%7C' => '|',
+        '%3F' => '?',
     );
     /**
      * raw url encode url
@@ -50,8 +51,7 @@ class UrlGenerator
             $explode[$index] = rawurlencode($val);
         }
         $link = implode('/', $explode);
-        $link = str_replace(array_keys($this->dontEncode), array_values($this->dontEncode), $link);
-        return $link;
+        return str_replace(array_keys($this->dontEncode), array_values($this->dontEncode), $link);
     }
 
     /**
@@ -120,6 +120,26 @@ class UrlGenerator
     }
 
     /**
+     * get current route url
+     * @return string
+     */
+    public function current(){
+        $route = request()->route();
+        return $this->toRoute($route,$route->getSegments());
+    }
+
+    /**
+     * get full url with query string
+     * @return string
+     */
+    public function fullUrl(){
+        $url = $this->current();
+        if(count($_GET)){
+            $url .= '?'.http_build_query($_GET);
+        }
+        return $url;
+    }
+    /**
      * get route by name
      * @param $name
      * @param array $parameters
@@ -152,6 +172,7 @@ class UrlGenerator
      * @return string
      */
     protected function toRoute(Route $route,$parameters = []){
+        $parameters = array_merge(request()->route()->getSegments(),$parameters);
         $root = strtr(
             rawurlencode(
                 $this->replaceRouteDomain($route,$parameters)

@@ -151,7 +151,7 @@ class Route
                 $this->where($key, $value);
             }
         } else {
-            $this->pattern[trim($name, ' ?')] = trim($pattern, ')(*/-+ ');
+            $this->pattern[trim($name, ' ?')] = trim($pattern, ')( ');
         }
         return $this;
     }
@@ -253,7 +253,7 @@ class Route
     {
         settype($group, 'array');
         foreach ($group as $key => $value) {
-            if ($key === 'prefix') {
+            if ($key === 'prefix' && !empty($value)) {
                 $this->uri = $value;
             } elseif ($key === 'namespace') {
                 $this->namespace = $value;
@@ -321,7 +321,7 @@ class Route
     {
         $wheres = $this->pattern;
         $patterns = static::getPatterns();
-        $url = preg_replace_callback('#(?P<ds>/?){(?P<name>[\w:]+)(?:\s+as\s+(?P<as>[\w:]+))?(?P<end>\??)}#u', function ($match) use ($wheres, $patterns) {
+        $url = preg_replace_callback('#(?P<ds>/?){(?P<name>[\w:]+)(?:\s+as\s+(?P<as>[\w:]+))?(?P<end>\??)}#ui', function ($match) use ($wheres, $patterns) {
             $name = $match['name'];
             if (isset($wheres[$name])) {
                 $value = $wheres[$name];
@@ -332,11 +332,12 @@ class Route
                 if (isset($patterns[$upper])) {
                     $value = $patterns[$upper];
                 } else {
-                    $value = $patterns[':STR'];
+                    $value = $patterns['STR'];
                 }
             }
             $name = strtolower($name);
-            $value = (empty($match['as']) ? $value : $match['as']);
+            $value = (empty($match['as']) ? $value : (isset($patterns[strtoupper($match['as'])]) ? $patterns[strtoupper($match['as'])] : $value));
+            $name  = str_replace(':',null,$name);
             return '(?:' . $match['ds'] . '(?P<' . $name . '>' . $value . '))' . $match['end'];
         }, $url);
         return $url;
@@ -381,8 +382,8 @@ class Route
             $this->setRouteControllerDetails();
             return true;
         }
-        $url = rtrim($queryString,Router::DELIMITER);
-        $replace = $this->replace(rtrim($this->uri,Router::DELIMITER));
+        $url = trim($queryString,Router::DELIMITER);
+        $replace = $this->replace(trim($this->uri,Router::DELIMITER));
         if (preg_match('#^' . $replace . '$#u', $url, $match)) {
             $this->segment = array_merge($this->segment, array_slice($match, 1));
             $this->setRouteControllerDetails();

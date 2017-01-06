@@ -34,7 +34,6 @@
             border: 1px solid #dfdfdf;
             border-top: none ;
             border-radius:0 0 5px 5px;
-            text-transform: capitalize;
         }
         #Trace{
             margin-top: 10px;

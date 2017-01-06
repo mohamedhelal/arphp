@@ -24,7 +24,11 @@ class Pagination
     private $next;
     private $back;
     private $last;
-
+    /**
+     * link title
+     * @var string
+     */
+    protected $title;
     /**
      * setting prep
      */
@@ -52,6 +56,15 @@ class Pagination
     }
 
     /**
+     * set linke title
+     * @param $title
+     * @return $this
+     */
+    public function setTitle($title){
+        $this->title = $title;
+        return $this;
+    }
+    /**
      * create new object
      * @param $count
      * @param $limit
@@ -75,11 +88,13 @@ class Pagination
     }
 
     /**
-     * @param bool|string $class_name
+     * @param $class_name
+     * @return $this
      */
     public function setClassName($class_name)
     {
         $this->class_name = $class_name;
+        return $this;
     }
     
     public function next($next){
@@ -108,6 +123,10 @@ class Pagination
         $this->page = ((int)$this->page == false ? 1 : (int)$this->page);
         $this->offset = (($this->page - 1) * $this->limit);
         $ceil = ceil($this->count / $this->limit);
+        if($this->page > $ceil){
+            $this->offset = $ceil;
+            $this->page = $ceil;
+        }
         $start = 1;
         $end = $ceil;
         if (is_numeric($this->page_limit)) {
@@ -132,23 +151,23 @@ class Pagination
     {
         $this->pages = '<ul class="Pagination">';
         if ($this->page > 1 && $this->ceil > $this->page) {
-            $this->pages .= '<li><a href="' . $this->changePageUrl(($this->page + 1)) . '" class="page_next ' . $this->class_name . '  ">'.(!empty($this->next)?$this->next:'&nbsp;').'</a></li>';
+            $this->pages .= '<li><a href="' . $this->changePageUrl(($this->page + 1)) . '" class="page_next ' . $this->class_name . '  " title="'.$this->title.' '.($this->page + 1).'" alt="'.$this->title.' '.($this->page + 1).'">'.(!empty($this->next)?$this->next:'&nbsp;').'</a></li>';
         }
         if ($this->page > 1 && $this->page > ($this->page_limit - 1) && $this->ceil >= $this->page) {
-            $this->pages .= '<li><a href="' . $this->changePageUrl(1) . '"  class="' . $this->class_name . '">1</a> </li>';
+            $this->pages .= '<li><a href="' . $this->changePageUrl(1) . '"  class="' . $this->class_name . '"  title="'.$this->title.' 1" alt="'.$this->title.' 1">1</a> </li>';
         }
         for ($i = $this->start; $i <= $this->end; $i++) {
             if ($this->page == $i) {
                 $this->pages .= '<li class="active"><span  class="page_active">' . $i . '</span> </li>';
             } else {
-                $this->pages .= '<li><a href="' . $this->changePageUrl($i) . '"  class="' . $this->class_name . '">' . $i . '</a>  </li>';
+                $this->pages .= '<li><a href="' . $this->changePageUrl($i) . '"  class="' . $this->class_name . '"  title="'.$this->title.' '.$i.'" alt="'.$this->title.' '.$i.'">' . $i . '</a>  </li>';
             }
         }
         if ($this->page > 1) {
-            $this->pages .= '<li><a href="' . $this->changePageUrl(($this->page - 1)) . '"  class="' . $this->class_name . ' page_back">'.(!empty($this->back)?$this->back:'&nbsp;').'</a></li>';
+            $this->pages .= '<li><a href="' . $this->changePageUrl(($this->page - 1)) . '"  class="' . $this->class_name . ' page_back"  title="'.$this->title.' '.($this->page - 1).'" alt="'.$this->title.' '.($this->page - 1).'">'.(!empty($this->back)?$this->back:'&nbsp;').'</a></li>';
         }
         if ($this->ceil > $this->end) {
-            $this->pages .= '<li><a href="' . $this->changePageUrl($this->ceil) . '"  class="page_last ' . $this->class_name . ' ">'.(!empty($this->last)?$this->last:'&nbsp;').'</a></li>';
+            $this->pages .= '<li><a href="' . $this->changePageUrl($this->ceil) . '"  class="page_last ' . $this->class_name . ' "  title="'.$this->title.' '.($this->ceil).'" alt="'.$this->title.' '.($this->ceil).'">'.(!empty($this->last)?$this->last:'&nbsp;').'</a></li>';
         }
         $this->pages .= '</ul>';
     }

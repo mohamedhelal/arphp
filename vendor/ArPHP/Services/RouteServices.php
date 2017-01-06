@@ -14,6 +14,15 @@ namespace ArPHP\Services;
 abstract class RouteServices extends Services
 {
 
+    protected $namespace = null;
+    /**
+     * register settings
+     * @return mixed
+     */
+    public function register()
+    {
+        // TODO: Implement register() method.
+    }
     /**
      * booted all after register
      */

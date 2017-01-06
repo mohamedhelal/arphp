@@ -24,6 +24,6 @@ class FilesystemService extends Services
      */
     public function register()
     {
-        $this->app->instance('files',Filesystem::class);
+        $this->app->share(Filesystem::class,Filesystem::class);
     }
 }

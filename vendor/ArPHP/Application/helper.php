@@ -50,9 +50,9 @@ function config($key = null, $default = false, $force = false)
 function lang($key = false, $replace = [])
 {
     if (count(func_get_args()) == 0) {
-        return app()->translate;
+        return app()->Translate;
     }
-    return app()->translate->get($key, $replace);
+    return app()->Translate->get($key, $replace);
 }
 
 /**
@@ -131,6 +131,7 @@ function base_url($path = false, $secure = false)
  */
 function base_path()
 {
+
     return app()->path('basePath');
 }
 /**
@@ -147,7 +148,13 @@ function public_path()
  */
 function public_url()
 {
-    return base_url(public_path());
+    $url = null;
+    if(count(func_get_args())){
+        foreach (func_get_args() as $func_get_arg) {
+            $url .= ltrim($func_get_arg,'/');
+        }
+    }
+    return base_url(public_path()).$url;
 }
 
 /**

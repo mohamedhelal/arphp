@@ -10,10 +10,7 @@
 namespace ArPHP\Filesystem;
 
 
-
-
-
-use ArPHP\Exception\MyException;
+use ArPHP\Exceptions\MyException;
 
 class FileNotExists extends MyException
 {

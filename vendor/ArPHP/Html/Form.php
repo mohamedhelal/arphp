@@ -11,9 +11,10 @@
 namespace ArPHP\Html;
 
 
-use ArPHP\Exception\MyException;
-use ArPHP\Http\Request;
-use ArPHP\Support\Implementing\JsonSerializeArrayObject;
+
+use ArPHP\Exceptions\UndefinedExceptions;
+use ArPHP\Sessions\SessionManager;
+use ArPHP\Support\Implementing\JSAOAble;
 use Arr;
 use ArPHP\Support\Macro;
 use Str;
@@ -47,14 +48,14 @@ class Form extends Macro
      * @param $name
      * @param $args
      * @return bool|mixed
-     * @throws MyException
+     * @throws UndefinedExceptions
      */
     public function __call($name, $args)
     {
         if ($result = $this->getMacro($name, $args)) {
             return $result;
         }
-        throw new MyException("class '" . get_called_class() . "' does not have a method '$name'");
+        throw new UndefinedExceptions("class '" . get_called_class() . "' does not have a method '$name'");
     }
 
     /**
@@ -63,7 +64,7 @@ class Form extends Macro
      */
     public function model($data)
     {
-        if ($data instanceof JsonSerializeArrayObject) {
+        if ($data instanceof JSAOAble) {
             $data = $data->toArray();
         }
         $this->form_data = (array)$data;
@@ -166,7 +167,7 @@ class Form extends Macro
         if (!in_array(strtolower($attr['method']), array('post', 'get'))) {
             $method = strtoupper($attr['method']);
             $attr['method'] = 'POST';
-            $hidden = $this->hidden(Request::__METHOD, $method);
+            $hidden = $this->hidden(__USER_METHOD__, $method);
         }
         return '<form ' . HtmlC::attr($attr) . " >\n" . $hidden . "\n";
     }
@@ -186,7 +187,7 @@ class Form extends Macro
      */
     public function Token()
     {
-        return $this->hidden(\ArPHP\Sessions\Sessions::TOKEN, \Session::token());
+        return $this->hidden(SessionManager::TOKEN, \Session::token());
     }
 
     /**
@@ -477,7 +478,7 @@ class Form extends Macro
      */
     public function button($label, $name = false, $attr = array())
     {
-        return $this->createButton($name, $label, false, array('type' => 'button'));
+        return $this->createButton($name, $label, false, array_merge($attr,array('type' => 'button')));
     }
 
     /**
@@ -490,7 +491,7 @@ class Form extends Macro
      */
     public function submit($label, $name = false, $value = false, $attr = array())
     {
-        return $this->createButton($name, $label, $value, array('type' => 'submit'));
+        return $this->createButton($name, $label, $value, array_merge($attr,array('type' => 'submit')));
     }
 
     /**
@@ -502,6 +503,6 @@ class Form extends Macro
      */
     public function reset($label, $name = false, $attr = array())
     {
-        return $this->createButton($name, $label, false, array('type' => 'reset'));
+        return $this->createButton($name, $label, false, array_merge($attr,array('type' => 'reset')));
     }
 }

@@ -101,10 +101,10 @@ class Grammar
     }
 
     /**
-     * @param Grammar $parent
+     * @param Grammar|Model $parent
      * @return $this
      */
-    public function setParent(Grammar $parent)
+    public function setParent($parent)
     {
         $this->parent = $parent;
         return $this;
@@ -262,6 +262,8 @@ class Grammar
                     $this->from[] = $call;
                 }
                 $call = null;
+            } elseif ($from instanceof Expression) {
+                $this->from[] = $from->get();
             }
         }
         return $this;
@@ -308,10 +310,25 @@ class Grammar
                 $this->columns[] = $call;
             }
             $call = null;
+        } elseif ($select instanceof Expression) {
+            $this->columns[] = $select->get();
         }
         return $this;
     }
 
+    /**
+     * @param $sql
+     * @param null $as
+     * @return $this
+     */
+    public function selectSub($sql,$as = null){
+        if($sql instanceof Closure){
+            $sql = $this->callClosureContent($sql);
+        }
+        $as = ($as == null ? null : ' AS '.$as);
+        $this->select(Connection::raw('('.$sql.') '.$as));
+        return $this;
+    }
     /**
      * @param $field
      * @param string $order
@@ -454,8 +471,7 @@ class Grammar
                 } elseif ($value instanceof Expression) {
                     $this->wheres[] = $logical . ' ' . $field . ' ' . $comparison . ' ' . $value->get();
                 } else {
-
-                    if (!preg_match('#^\s*(IS|LIKE|NOT\s+LIKE|IN|NOT\s+IN|BETWEEN|([!=><]+))\s*$#iU', $comparison)) {
+                    if ( !preg_match('#^\s*(IS|LIKE|NOT\s+LIKE|IN|NOT\s+IN|BETWEEN|([!=><]+))\s*$#iU', $comparison)) {
                         $value = $comparison;
                         $comparison = '=';
                     }
@@ -638,22 +654,22 @@ class Grammar
      */
     public function whereField($field, $comparison = '=', $value = false, $logical = 'AND')
     {
-        return $this->wheres($field, $comparison, $value, $logical, true);
+        return $this->where($field, $comparison, $value, $logical, true);
     }
 
     public function whereNull($field, $logical = 'AND')
     {
-        return $this->wheres($field, 'IS', null, $logical, true);
+        return $this->where($field, 'IS', null, $logical, true);
     }
 
     public function orWhereField($field, $comparison = '=', $value = false)
     {
-        return $this->wheres($field, $comparison, $value, 'OR', true);
+        return $this->where($field, $comparison, $value, 'OR', true);
     }
 
     public function orWhere($field, $comparison = '=', $value = false)
     {
-        return $this->wheres($field, $comparison, $value, 'OR');
+        return $this->where($field, $comparison, $value, 'OR');
     }
 
     /**
@@ -665,12 +681,12 @@ class Grammar
      */
     public function whereNotIn($field, $value, $logical = 'AND', $isField = false)
     {
-        return $this->wheresIn($field, $value, $logical, $isField, true);
+        return $this->whereIn($field, $value, $logical, $isField, true);
     }
 
     public function orWhereNotIn($field, $value, $isField = false)
     {
-        return $this->wheresIn($field, $value, 'OR', $isField, true);
+        return $this->whereIn($field, $value, 'OR', $isField, true);
     }
 
     /**

@@ -162,6 +162,7 @@ class Application implements ArrayAccess
         $this->share(Request::class);
         $this->share('config', Repository::class);
         $this->share('Translate', \ArPHP\Translate\Repository::class);
+        require_once (config_path().'constants'.EXT);
         $this->setAlias(config('app.aliases'));
         $this->setNamespace(config('app.namespaces'));
         $router = &$this->share(Router::class);
@@ -336,7 +337,7 @@ class Application implements ArrayAccess
                         });
                         $dependencies[] = $Closure;
                     }else {
-                        $dependencies[] = &$this->make($class->name);
+                        $dependencies[] = $this->make($class->name);
                     }
                 } elseif (isset($parameters[$index])) {
                     $dependencies[] = $parameters[$index];
@@ -443,7 +444,7 @@ class Application implements ArrayAccess
         }
         $content = $this->getClass($content, $parameters);
         if ($singleton) {
-            static::$_instances[$abstract] = $content;
+             static::$_instances[$abstract] = $content;
         }
         return $content;
     }

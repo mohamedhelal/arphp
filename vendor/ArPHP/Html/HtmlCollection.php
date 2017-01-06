@@ -12,18 +12,18 @@ namespace ArPHP\Html;
 
 
 
-use ArPHP\Support\Facade\Facade;
 
-class HtmlCollection extends Facade
+
+use ArPHP\Support\Statics\Statics;
+
+class HtmlCollection extends Statics
 {
-
 
     /**
      * get object name
      * @return mixed
      */
-
-    protected static function getInstanceName()
+    protected static function getStaticName()
     {
         return 'html';
     }

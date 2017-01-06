@@ -63,7 +63,7 @@ class Handler
      * @param $line
      * @return string
      */
-    protected function set_error_handler($level, $error, $file, $line)
+    public function set_error_handler($level, $error, $file, $line)
     {
         return $this->prepare(new HandlerExceptions($error, $level, $file, $line));
     }
@@ -115,7 +115,7 @@ class Handler
         if($e instanceof HttpException){
             return false;
         }elseif($e instanceof \ArPHP\Databases\DatabaseException){
-            return false;
+            return true;
         }
         return true;
     }
@@ -132,7 +132,7 @@ class Handler
      * @param $args
      * @return string
      */
-    protected function getArrayOrObjectToString($args){
+    public function getArrayOrObjectToString($args){
         $newArgs = [];
         foreach ($args as $arg) {
             if(is_object($arg)){
@@ -183,7 +183,10 @@ class Handler
      */
     protected function prepare( $e)
     {
-        ob_end_clean();
+
+        while (ob_get_level() != 0){
+            ob_end_clean();
+        }
         include 'view.php';
         die();
     }

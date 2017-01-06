@@ -14,6 +14,7 @@ namespace ArPHP\Databases;
 
 
 
+use ArPHP\Databases\Drivers\Grammar;
 use ArPHP\Exceptions\UndefinedExceptions;
 use ArPHP\Support\Implementing\JSAOAble;
 use Traversable;
@@ -112,7 +113,7 @@ abstract class Model  implements JSAOAble
      */
     public function __isset($name)
     {
-        return (array_key_exists($name,$this->attributes)|| array_key_exists($name,$this->original));
+        return (array_key_exists($name,(array)$this->attributes) || array_key_exists($name,(array)$this->original));
     }
 
     /**
@@ -130,23 +131,8 @@ abstract class Model  implements JSAOAble
      */
     public function __call($name, $arguments)
     {
-        $loaded = false;
-        if(method_exists($this,$scope = ('scope'.ucfirst($name)))){
-            array_unshift($arguments,$this);
-            $response = call_user_func_array([$this,$scope],$arguments);
-            $loaded = true;
-        }
-        else{
-            $response = call_user_func_array([$this->builder,$name],$arguments);
-        }
-        if($response !== false && is_a($response,Builder::class)){
-            $response = $this;
-            $loaded = true;
-        }
-        if($loaded == false && $response === false){
-            throw new UndefinedExceptions(' Call to undefined method  ' . get_called_class() . '::' . $name . '()');
-        }
-        return $response;
+
+        return  call_user_func_array([$this->builder,$name],$arguments);
     }
 
     /**
@@ -157,7 +143,27 @@ abstract class Model  implements JSAOAble
     public static function __callStatic($name, $arguments)
     {
         $query = new static();
-        return call_user_func_array([$query,$name],$arguments);
+        return call_user_func_array([&$query,$name],$arguments);
+    }
+
+    /**
+     * get latest rows
+     * @param Model $query
+     * @param null $field
+     * @return mixed
+     */
+    public function scopeLatest(Model $query,$field = null){
+        return $query->orderBy(($field == null ? $this->qualifiedKeyName() : $field),'DESC');
+    }
+
+    /**
+     * get oldest rows
+     * @param Model $query
+     * @param null $field
+     * @return mixed
+     */
+    public function scopeOldest(Model $query,$field = null){
+        return $query->orderBy(($field == null ? $this->qualifiedKeyName() : $field),'ASC');
     }
 
     /**
@@ -267,7 +273,8 @@ abstract class Model  implements JSAOAble
        }elseif(array_key_exists($name,$this->original)){
            return $this->original[$name];
        }
-        throw new UndefinedExceptions(' Undefined property  ' . get_called_class() . '::' . $name);
+
+       throw new UndefinedExceptions(' Undefined property  ' . get_called_class() . '::$' . $name);
     }
     /**
      * @return string
@@ -367,7 +374,7 @@ abstract class Model  implements JSAOAble
 
             $save = $this->getConnection()->query($query, $parameters);
             if(!$this->exists()) {
-                $this->{$this->primaryKey} = $this->getConnection()->lastInsertId();
+                $this->setAttribute($this->primaryKey,$this->getConnection()->lastInsertId());
             }
             return $save;
         }
@@ -392,7 +399,7 @@ abstract class Model  implements JSAOAble
      * @param array $columns
      * @return mixed
      */
-    public static function all($columns = ['*']){
+    public static function all($columns = []){
         $new = new static();
         return $new->get($columns);
     }
@@ -444,11 +451,7 @@ abstract class Model  implements JSAOAble
      */
     public function getIterator()
     {
-        if ($this->exists()) {
-            return new \ArrayIterator($this->original);
-        } else {
-            return new \ArrayIterator($this->attributes);
-        }
+        return new \ArrayIterator(array_merge($this->original,$this->attributes));
     }
 
     /**
@@ -465,7 +468,7 @@ abstract class Model  implements JSAOAble
      */
     public function offsetExists($offset)
     {
-        return $this->__isset($offset);
+        return isset($this->{$offset});
     }
 
     /**
@@ -479,7 +482,7 @@ abstract class Model  implements JSAOAble
      */
     public function offsetGet($offset)
     {
-        return $this->getAttribute($offset);
+        return $this->{$offset};
     }
 
     /**
@@ -496,7 +499,7 @@ abstract class Model  implements JSAOAble
      */
     public function offsetSet($offset, $value)
     {
-        $this->setAttribute($offset,$value);
+        $this->{$offset} = $value;
     }
 
     /**
@@ -521,9 +524,7 @@ abstract class Model  implements JSAOAble
      */
     public function serialize()
     {
-        if($this->exists){
-            return serialize($this->toArray());
-        }
+        return serialize($this->toArray());
     }
 
     /**

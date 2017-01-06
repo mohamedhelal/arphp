@@ -265,6 +265,21 @@ class Filesystem
     }
 
     /**
+     * sort files sort by date modified
+     * @param $dir
+     * @return array
+     */
+    public function filesScanMTime($dir){
+        $dir = rtrim($dir,DS);
+        $scanDir = $this->files($dir);
+        $files   = [];
+        foreach ($scanDir as $item) {
+            $files[filemtime($item)] = $item;
+        }
+        ksort($files);
+        return $files;
+    }
+    /**
      * get an array of directories in a directory
      * @param $directory
      * @return array

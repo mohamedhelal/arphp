@@ -58,7 +58,7 @@ class Controller
      */
     public function middleware($name,$item = ['all']){
         if(!($this->HttpProtection instanceof HttpProtection)){
-            $this->HttpProtection = &app(HttpProtection::class);
+            $this->HttpProtection = app(HttpProtection::class);
         }
         $this->HttpProtection->add($name,$item);
         return $this;

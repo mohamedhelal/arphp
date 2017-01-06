@@ -114,13 +114,7 @@ class Repository extends Macro implements JSAOAble
      */
     public function all()
     {
-        $items = array_map(function ($row){
-            if($row instanceof JSAOAble){
-                return $row->toArray();
-            }
-            return $row;
-        },$this->items);
-       return $items;
+        return $this->items;
     }
 
     /**
