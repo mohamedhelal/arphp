@@ -27,8 +27,8 @@ class Repository extends \ArPHP\Support\Repository
      */
     public function __construct()
     {
-        parent::__construct($this->items);
-        $this->paths = config_path() ;
+        parent::__construct([]);
+        $this->paths[] = config_path() ;
     }
 
     /**
@@ -37,7 +37,7 @@ class Repository extends \ArPHP\Support\Repository
      * @param $path
      */
     public function module($alias,$path){
-        $this->paths[$alias] = $path;
+        $this->paths = array_merge((array)$this->paths,[$alias => $path]);
     }
 
     /**

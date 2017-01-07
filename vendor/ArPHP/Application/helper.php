@@ -11,9 +11,9 @@
  * get app object
  * @return \ArPHP\Application\Application|mixed
  */
-function &app()
+function app()
 {
-    $instance = &\ArPHP\Application\Application::getInstance();
+    $instance = \ArPHP\Application\Application::getInstance();
     $args = array_filter(func_get_args());
     if (count($args)) {
         return call_user_func_array([$instance, 'make'], $args);
@@ -26,7 +26,7 @@ function &app()
  * @param null $key
  * @param bool $default
  * @param bool $force
- * @return mixed
+ * @return mixed|ArPHP\Config\Repository
  */
 function config($key = null, $default = false, $force = false)
 {
@@ -45,7 +45,7 @@ function config($key = null, $default = false, $force = false)
 /**
  * @param $key
  * @param array $replace
- * @return mixed
+ * @return mixed|ArPHP\Translate\Repository
  */
 function lang($key = false, $replace = [])
 {
@@ -131,7 +131,6 @@ function base_url($path = false, $secure = false)
  */
 function base_path()
 {
-
     return app()->path('basePath');
 }
 /**

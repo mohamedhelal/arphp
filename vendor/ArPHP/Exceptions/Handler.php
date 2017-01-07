@@ -24,6 +24,10 @@ class Handler
      */
     const  ENVIRONMENT = 'production';
     /**
+     * @var int
+     */
+    protected $level = 0;
+    /**
      * error types
      * @var array
      */
@@ -42,11 +46,13 @@ class Handler
         E_STRICT => 'STRICT NOTICE',
         E_RECOVERABLE_ERROR => 'RECOVERABLE ERROR'
     );
+
     /**
      * Handler constructor.
      */
     public function __construct()
     {
+        $this->level = ob_get_level();
         foreach (static::$errorType as $key => $value) {
             static::$errorType[$key] = ucwords(strtolower($value));
         }
@@ -181,10 +187,9 @@ class Handler
      * @param  $e
      * @return string
      */
-    protected function prepare( $e)
+    protected function prepare($e)
     {
-
-        while (ob_get_level() != 0){
+        while (ob_get_level() > 0){
             ob_end_clean();
         }
         include 'view.php';

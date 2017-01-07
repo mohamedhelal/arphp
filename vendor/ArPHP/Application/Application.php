@@ -165,7 +165,7 @@ class Application implements ArrayAccess
         require_once (config_path().'constants'.EXT);
         $this->setAlias(config('app.aliases'));
         $this->setNamespace(config('app.namespaces'));
-        $router = &$this->share(Router::class);
+        $router = $this->share(Router::class);
         static::$_services = array_merge(static::$_services, config('app.services'));
         $this->registerServices();
         $this->bootServices();
@@ -208,7 +208,7 @@ class Application implements ArrayAccess
     protected function bootServices()
     {
         foreach (static::$_services as $service) {
-            $object =& $this->make($service);
+            $object =$this->make($service);
             if ($object instanceof RouteServices) {
                 $object->afterRegister();
             }
@@ -291,7 +291,7 @@ class Application implements ArrayAccess
      * @param null $content
      * @return mixed
      */
-    public function &share($abstract, $content = null)
+    public function share($abstract, $content = null)
     {
         $this->bind($abstract, $content, true);
         return $this->make($abstract);
@@ -411,7 +411,7 @@ class Application implements ArrayAccess
         $method = $this->getMethod($abstract);
         $parameters = $this->getMethodParameters($method, $parameters);
         if (is_array($abstract) && !is_object($abstract[0])) {
-            $abstract[0] = &$this->make($abstract[0]);
+            $abstract[0] = $this->make($abstract[0]);
         }
         return call_user_func_array($abstract, $parameters);
     }
@@ -424,7 +424,7 @@ class Application implements ArrayAccess
      * @throws HandlerExceptions
      */
     public
-    function &make($abstract, $parameters = [])
+    function make($abstract, $parameters = [])
     {
         if ($this->loader->isAlias($abstract)) {
             $abstract = $this->loader->getAlias($abstract);

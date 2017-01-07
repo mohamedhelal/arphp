@@ -23,7 +23,7 @@ class SessionServices extends Services
      */
     public function register()
     {
-        $sessions = &$this->app->share(SessionManager::class, function () {
+        $sessions = $this->app->share(SessionManager::class, function () {
             return new SessionManager();
         });
         Request::macro('sessions',function () use (&$sessions) {

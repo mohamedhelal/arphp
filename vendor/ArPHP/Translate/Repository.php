@@ -66,9 +66,10 @@ class Repository extends \ArPHP\Config\Repository
             $file = ltrim(strstr($file,'::'),'::');
         }
         $module = null;
+        $local = (is_string($this->local) ? $this->local.DS:null);
         foreach ((array)$path as $route) {
-            $route = rtrim($route,DS).DS.(is_string($this->local) ? $this->local.DS:null);
-            if(is_file($filename = $route.$file.EXT)){
+            $route = rtrim($route,DS).DS;
+            if(is_file($filename = $route.$local.$file.EXT) || is_file($filename = $route.$file.EXT)){
                 $this->items[$array[0]] = require "$filename";
                 return true;
             }
