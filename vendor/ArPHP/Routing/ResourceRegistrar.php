@@ -28,7 +28,7 @@ class ResourceRegistrar
      * ResourceRegistrar constructor.
      * @param Router $router
      */
-    public function __construct(Router &$router)
+    public function __construct(Router $router)
     {
         $this->router = $router;
     }
