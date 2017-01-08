@@ -134,6 +134,22 @@ abstract class Connection
         }
         return $data;
     }
+
+    /**
+     * get all rows count
+     * @param $statement
+     * @param array $parameters
+     * @return mixed
+     */
+    public function count($statement, $parameters = array()){
+        $rows =  $this->query($statement,$parameters);
+        $data = 0;
+        if($rows instanceof Reader){
+            $data =  $rows->count();
+            $rows->free();
+        }
+        return $data;
+    }
    /**
      * get insert
      * @param $statement

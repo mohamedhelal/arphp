@@ -17,7 +17,7 @@ abstract class Statics
      * get object name
      * @return mixed
      */
-   abstract protected static function getStaticName();
+    protected static function getStaticName(){}
     /**
      * get static object
      * @return \ArPHP\Application\Application|mixed

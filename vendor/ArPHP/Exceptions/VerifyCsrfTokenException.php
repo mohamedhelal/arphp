@@ -8,10 +8,7 @@
  * -----------------------------------
  */
 
-namespace ArPHP\Exception;
-
-
-use ArPHP\Exceptions\MyException;
+namespace ArPHP\Exceptions;
 
 class VerifyCsrfTokenException extends MyException
 {

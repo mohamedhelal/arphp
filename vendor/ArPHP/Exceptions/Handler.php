@@ -121,7 +121,9 @@ class Handler
         if($e instanceof HttpException){
             return false;
         }elseif($e instanceof \ArPHP\Databases\DatabaseException){
-            return true;
+            return false;
+        }elseif($e instanceof VerifyCsrfTokenException){
+            return false;
         }
         return true;
     }

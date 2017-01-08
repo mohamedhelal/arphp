@@ -83,7 +83,7 @@ class Builder extends Macro
             $response = (call_user_func_array([$this->model, $scope], $arg)?:$this);
             $loaded = true;
         } elseif (method_exists($this->model, $any = ('any' . ucwords($name)))) {
-            $response = (call_user_func_array([&$this->model, $any], $arguments)?:$this);
+            $response = call_user_func_array([&$this->model, $any], $arguments);
             $loaded = true;
         }
 
@@ -99,9 +99,9 @@ class Builder extends Macro
                 throw new UndefinedExceptions(' Call to undefined method  ' . get_called_class() . '::' . $name . '()');
             }
         }
-        if ($response == false) {
+       /* if ($response == false) {
             return $this->model;
-        }
+        }*/
         return $response;
     }
 
@@ -120,6 +120,15 @@ class Builder extends Macro
         return $this->model->newCollection($items);
     }
 
+    /**
+     * get all rows count
+     * @return mixed
+     */
+    public function count(){
+        $rows = $this->connection->count($this->grammar->select()->toSql(), $this->grammar->getBindings());
+        $this->grammar->clear();
+        return $rows;
+    }
     /**
      * @param array $columns
      * @return mixed|null

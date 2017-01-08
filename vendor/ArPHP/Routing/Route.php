@@ -79,6 +79,7 @@ class Route
 
     public function __construct($uri, $action, $type, $group, $when = [])
     {
+
         $this->_call_method = $type;
         $this->action = $action;
         $this->setUriPrefix($uri, $group,$when);
@@ -268,12 +269,15 @@ class Route
             }
         }
         $this->uri = rtrim($this->uri . Router::DELIMITER . ltrim($uri, Router::DELIMITER), Router::DELIMITER);
-        $checkWhen = Arr::first($this->_call_method,function ($key,$val) use($when){
-            return (isset($when[$val]));
-        });
-        if (count($when) && $checkWhen) {
-
-            foreach ($when as $prefix => $middleware) {
+        $whenRoute = [];
+        foreach ($this->_call_method as $method) {
+            if(isset($when[$method])){
+                $whenRoute = $when[$method];
+                break;
+            }
+       }
+        if (count($whenRoute)) {
+            foreach ($whenRoute as $prefix => $middleware) {
                 $prefix = ltrim($prefix, '/');
                 if (preg_match("#^{$prefix}$#i", ltrim($this->uri, '/'))) {
                     $this->middleware = array_merge($this->middleware, (array)$middleware);

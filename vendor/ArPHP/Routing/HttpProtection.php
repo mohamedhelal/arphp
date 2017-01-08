@@ -65,18 +65,21 @@ class HttpProtection
      */
     public function handler($callback,$method = null)
     {
-
         $middleware = $this->routeMiddleware;
         $response = null;
         $_response = function (Request $request) {
             return $request;
         };
 
-
         foreach ($middleware as $call => $item) {
-            if(!in_array('all',$item) && ($method != null && !in_array($method,$item)) ){
+            if(!in_array('all',$item)){
                 continue;
+            }elseif($method != null){
+                if(isset($item['except']) && in_array($method,(array)$item['except'])){
+                    continue;
+                }
             }
+
             $item = $call;
             $args = [request(), $_response];
             if (strpos($item, ':') !== false) {
