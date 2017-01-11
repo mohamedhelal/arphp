@@ -12,6 +12,7 @@ namespace ArPHP\Support;
 
 
 
+use ArPHP\Sessions\SessionManager;
 use ArPHP\Support\Implementing\JSAOAble;
 use Traversable;
 
@@ -114,7 +115,7 @@ class Repository extends Macro implements JSAOAble
      */
     public function all()
     {
-        return $this->items;
+        return array_diff_key($this->items,array_fill_keys([__USER_METHOD__,SessionManager::TOKEN],null));
     }
 
     /**

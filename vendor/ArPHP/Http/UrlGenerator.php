@@ -150,7 +150,7 @@ class UrlGenerator
     public function route($name,$parameters = [],$route = null){
         $route = $route?:app(Router::class)->findRouteByName($name);
         $parameters = (array) $parameters;
-        if(!is_null($route)){
+        if($route instanceof Route){
             return $this->toRoute($route,$parameters);
         }
         throw new HttpRouteException('Undefined Route  "' . $name . '"');

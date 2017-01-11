@@ -257,7 +257,7 @@ class Request extends Macro
      */
     public function token(){
         $token = SessionManager::TOKEN;
-        return $this->all($token);
+        return ($this->get($token)?:($this->post($token)?:false));
     }
 
 
